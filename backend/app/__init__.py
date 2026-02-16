@@ -1,5 +1,3 @@
-# app/__init__.py
-
 from flask import Flask
 from flask_cors import CORS
 from .config import Config
@@ -16,7 +14,10 @@ def create_app():
     migrate.init_app(app, db)
 
     # Import models so Flask-Migrate can detect them
-    from .models import User, Room, Booking, Review
+    from .models.User import User
+    from .models.Room import Room
+    from .models.Booking import Booking
+    from .models.Review import Review
 
     from .routes.auth_routes import auth_bp
     from .routes.room_routes import room_bp

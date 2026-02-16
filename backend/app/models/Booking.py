@@ -23,3 +23,17 @@ class Booking(db.Model):
 
     room = db.relationship("Room", backref="bookings")
     user = db.relationship("User", backref="bookings")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "room_id": self.room_id,
+            "user_id": self.user_id,
+            "check_in_date": self.check_in_date.isoformat() if self.check_in_date else None,
+            "check_out_date": self.check_out_date.isoformat() if self.check_out_date else None,
+            "total_price": self.total_price,
+            "status": self.status,
+            "guest_count": self.guest_count,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+        }

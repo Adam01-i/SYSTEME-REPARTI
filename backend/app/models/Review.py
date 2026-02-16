@@ -17,3 +17,13 @@ class Review(db.Model):
 
     booking = db.relationship("Booking", backref="review")
     user = db.relationship("User", backref="reviews")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "booking_id": self.booking_id,
+            "user_id": self.user_id,
+            "rating": self.rating,
+            "comment": self.comment,
+            "created_at": self.created_at.isoformat() if self.created_at else None
+        }
