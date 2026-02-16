@@ -1,42 +1,67 @@
-// src/lib/api.ts
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
-export async function getRooms(params?: Record<string, any>) {
-  const query = params
-    ? '?' + new URLSearchParams(params as any).toString()
-    : '';
-  const res = await fetch(`${API_BASE_URL}/rooms${query}`);
-  if (!res.ok) {
-    throw new Error('Failed to fetch rooms');
+/**
+ * Instance Axios principale
+ */
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:5000/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: false, // mettre true si tu utilises cookies plus tard
+});
+
+/**
+ * 🔐 Interceptor REQUEST
+ * Injecte automatiquement le token JWT dans chaque requête
+ */
+api.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const token = localStorage.getItem("access_token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return res.json();
-}
+);
 
-export async function getRoom(id: string) {
-  const res = await fetch(`${API_BASE_URL}/rooms/${id}`);
-  if (!res.ok) {
-    throw new Error('Failed to fetch room details');
+/**
+ * 🚨 Interceptor RESPONSE
+ * Gère automatiquement :
+ * - erreurs 401 (token expiré)
+ * - erreurs serveur
+ * - erreurs réseau
+ */
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError<any>) => {
+    if (!error.response) {
+      console.error("Erreur réseau ou serveur injoignable");
+      return Promise.reject("Serveur injoignable");
+    }
+
+    const { status, data } = error.response;
+
+    // 🔒 Token expiré ou invalide
+    if (status === 401) {
+      localStorage.removeItem("access_token");
+
+      // Redirection vers login
+      window.location.href = "/login";
+
+      return Promise.reject("Session expirée. Veuillez vous reconnecter.");
+    }
+
+    // ❌ Erreur backend avec message
+    if (data?.message) {
+      return Promise.reject(data.message);
+    }
+
+    return Promise.reject("Une erreur est survenue.");
   }
-  return res.json();
-}
-
-// Pour login/register
-export async function login(data: { email: string; password: string }) {
-  const res = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error('Login failed');
-  return res.json();
-}
-
-export async function register(data: { name: string; email: string; password: string }) {
-  const res = await fetch(`${API_BASE_URL}/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!res.ok) throw new Error('Register failed');
-  return res.json();
-}
+);

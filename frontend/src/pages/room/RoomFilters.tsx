@@ -80,7 +80,7 @@ export default function RoomFilters({
               <input
                 type="number"
                 value={priceRange[0]}
-                onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
+                onChange={(e) => setPriceRange([Number(e.target.value) || 0, priceRange[1]])}
                 min="0"
                 className="w-full pl-10 pr-3 py-2 border rounded-lg"
                 placeholder="Min"
@@ -92,7 +92,7 @@ export default function RoomFilters({
               <input
                 type="number"
                 value={priceRange[1]}
-                onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value) || 0])}
                 min={priceRange[0]}
                 className="w-full pl-10 pr-3 py-2 border rounded-lg"
                 placeholder="Max"
@@ -111,7 +111,7 @@ export default function RoomFilters({
             <input
               type="number"
               value={capacity}
-              onChange={(e) => setCapacity(parseInt(e.target.value))}
+              onChange={(e) => setCapacity(Number(e.target.value) || 0)}
               min="1"
               className="w-full pl-10 pr-3 py-2 border rounded-lg"
             />

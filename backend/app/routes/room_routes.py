@@ -15,8 +15,41 @@ def ping():
 # 🔹 Récupérer toutes les rooms
 @room_bp.route("/", methods=["GET"])
 def get_rooms():
-    rooms = Room.query.all()
-    return jsonify([room.to_dict() for room in rooms])
+    search = request.args.get("search", type=str)
+    min_price = request.args.get("min_price", type=float)
+    max_price = request.args.get("max_price", type=float)
+    capacity = request.args.get("capacity", type=int)
+    room_type = request.args.get("room_type", type=str)
+
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
+
+    query = Room.query
+
+    # 🔎 Filtres dynamiques
+    if search:
+        query = query.filter(Room.name.ilike(f"%{search}%"))
+
+    if min_price is not None:
+        query = query.filter(Room.price_per_night >= min_price)
+
+    if max_price is not None:
+        query = query.filter(Room.price_per_night <= max_price)
+
+    if capacity is not None:
+        query = query.filter(Room.capacity >= capacity)
+
+    if room_type:
+        query = query.filter(Room.room_type == room_type)
+
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    return jsonify({
+        "items": [room.to_dict() for room in pagination.items],
+        "total": pagination.total,
+        "page": pagination.page,
+        "pages": pagination.pages,
+    })
 
 
 # 🔹 Récupérer une room par ID
