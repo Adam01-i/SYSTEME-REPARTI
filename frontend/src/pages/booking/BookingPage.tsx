@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../lib/supabase';
 import { Calendar, Users, CreditCard, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format, addDays, differenceInDays } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 
 interface Room {
@@ -48,21 +47,6 @@ function BookingPage() {
         .select('*')
         .eq('id', roomId)
         .single();
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: isAuthenticated,
-  });
-
-  const { data: existingBookings } = useQuery({
-    queryKey: ['bookings', roomId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('bookings')
-        .select('check_in_date, check_out_date')
-        .eq('room_id', roomId)
-        .eq('status', 'confirmed');
 
       if (error) throw error;
       return data;
@@ -113,15 +97,6 @@ function BookingPage() {
       }
     },
   });
-
-  const isDateAvailable = (date: Date) => {
-    if (!existingBookings) return true;
-    return !existingBookings.some(booking => {
-      const bookingStart = new Date(booking.check_in_date);
-      const bookingEnd = new Date(booking.check_out_date);
-      return date >= bookingStart && date <= bookingEnd;
-    });
-  };
 
   const calculateTotalPrice = () => {
     if (!checkInDate || !checkOutDate || !room) return 0;

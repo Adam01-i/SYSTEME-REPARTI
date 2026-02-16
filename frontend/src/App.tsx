@@ -1,27 +1,26 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
-import AuthProvider from './components/AuthProvider';
+// import AuthProvider from './components/AuthProvider';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
-import RoomListPage from './pages/RoomListPage';
-import RoomDetailPage from './pages/RoomDetailPage';
-import BookingPage from './pages/BookingPage';
+import RoomListPage from './pages/room/RoomListPage';
+import RoomDetailPage from './pages/room/RoomDetailPage';
+import BookingPage from './pages/booking/BookingPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminRooms from './pages/AdminRooms';
-import AdminBookings from './pages/AdminBookings';
+import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminRooms from './pages/admin/AdminRooms';
+import AdminBookings from './pages/admin/AdminBookings';
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+      {/* <AuthProvider> */}
         <Router>
           <div className="min-h-screen bg-gray-50">
             <Navbar />
@@ -41,7 +40,7 @@ function App() {
             <Toaster position="top-right" />
           </div>
         </Router>
-      </AuthProvider>
+      {/* </AuthProvider> */}
     </QueryClientProvider>
   );
 }

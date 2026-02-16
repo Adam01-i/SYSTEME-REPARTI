@@ -1,7 +1,6 @@
-import React from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Calendar, Home, User } from 'lucide-react';
-import BookingsList from '../components/BookingsList';
+import BookingsList from './booking/BookingsList';
 
 function DashboardOverview() {
   return (

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase';
 import { Calendar, Users, Wifi, Coffee, Tv, Bath } from 'lucide-react';
 
 interface Room {
@@ -15,21 +14,22 @@ interface Room {
   amenities: string[];
 }
 
-function RoomDetailPage() {
-  const { id } = useParams();
+async function fetchRoom(id: string): Promise<Room> {
+  const res = await fetch(`http://localhost:5000/api/rooms/${id}`);
+  if (!res.ok) throw new Error('Failed to fetch room');
+  return res.json();
+}
 
-  const { data: room, isLoading, error } = useQuery<Room>({
+export default function RoomDetailPage() {
+  const { id } = useParams<{ id: string }>();
+
+  const { data: room, isLoading, error } = useQuery<Room, Error>({
     queryKey: ['room', id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('rooms')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data;
+    queryFn: () => {
+      if (!id) throw new Error('Room ID is missing');
+      return fetchRoom(id);
     },
+    enabled: !!id,
   });
 
   if (isLoading) {
@@ -40,27 +40,21 @@ function RoomDetailPage() {
     );
   }
 
-  if (error) {
+  if (error || !room) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500">Error loading room details</div>
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        {error?.message || 'Room not found'}
       </div>
     );
   }
 
-  if (!room) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-500">Room not found</div>
-      </div>
-    );
-  }
-
-  const amenityIcons: { [key: string]: React.ReactNode } = {
+  const amenityIcons: Record<string, React.ReactNode> = {
     'Wi-Fi': <Wifi className="h-6 w-6" />,
     'Coffee Maker': <Coffee className="h-6 w-6" />,
     'Smart TV': <Tv className="h-6 w-6" />,
     'Private Bathroom': <Bath className="h-6 w-6" />,
+    'Calendar': <Calendar className="h-6 w-6" />,
+    'Users': <Users className="h-6 w-6" />,
   };
 
   return (
@@ -68,11 +62,11 @@ function RoomDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Image Gallery */}
         <div className="space-y-4">
-          {room.images.map((image, index) => (
+          {room.images.map((img: string, idx: number) => (
             <img
-              key={index}
-              src={image}
-              alt={`${room.name} - Image ${index + 1}`}
+              key={idx}
+              src={img}
+              alt={`${room.name} - Image ${idx + 1}`}
               className="w-full h-64 object-cover rounded-lg shadow-lg"
             />
           ))}
@@ -98,9 +92,9 @@ function RoomDetailPage() {
           <div>
             <h2 className="text-xl font-semibold mb-4">Amenities</h2>
             <div className="grid grid-cols-2 gap-4">
-              {room.amenities.map((amenity) => (
-                <div key={amenity} className="flex items-center space-x-2">
-                  {amenityIcons[amenity]}
+              {room.amenities.map((amenity: string, idx: number) => (
+                <div key={idx} className="flex items-center space-x-2">
+                  {amenityIcons[amenity] || <span className="h-6 w-6" />}
                   <span className="text-gray-600">{amenity}</span>
                 </div>
               ))}
@@ -110,12 +104,12 @@ function RoomDetailPage() {
           <div className="bg-gray-50 p-6 rounded-lg">
             <div className="flex items-center justify-between mb-4">
               <span className="text-2xl font-bold text-gray-900">
-                ${room.price_per_night}
+                {room.price_per_night} €
               </span>
               <span className="text-gray-600">per night</span>
             </div>
             <button
-              onClick={() => window.location.href = `/booking/${room.id}`}
+              onClick={() => (window.location.href = `/booking/${room.id}`)}
               className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200"
             >
               Book Now
@@ -126,5 +120,3 @@ function RoomDetailPage() {
     </div>
   );
 }
-
-export default RoomDetailPage;
