@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
 import { UserPlus, Mail, Lock, User } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useRegister } from '../../hooks/auth/useRegister';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const registerMutation = useRegister();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -15,7 +17,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
       toast.error('Les mots de passe ne correspondent pas');
       return;
@@ -29,24 +31,18 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      await registerMutation.mutateAsync({
+        name: `${firstName} ${lastName}`,
         email,
         password,
-        options: {
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-          },
-        },
+        role: 'user', // ou 'admin' si tu veux gérer différents rôles
       });
-
-      if (error) throw error;
 
       toast.success('Inscription réussie ! Vous pouvez maintenant vous connecter.');
       navigate('/login');
-    } catch (error) {
-      toast.error("Échec de l'inscription. Veuillez réessayer.");
-      console.error("Erreur d'inscription:", error);
+    } catch (error: any) {
+      console.error('Erreur d’inscription :', error);
+      toast.error(error?.response?.data?.msg || 'Échec de l’inscription. Veuillez réessayer.');
     } finally {
       setIsLoading(false);
     }
@@ -74,6 +70,7 @@ export default function RegisterPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-2xl sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Prénom et Nom */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
@@ -85,7 +82,6 @@ export default function RegisterPage() {
                   </div>
                   <input
                     id="firstName"
-                    name="firstName"
                     type="text"
                     required
                     value={firstName}
@@ -106,7 +102,6 @@ export default function RegisterPage() {
                   </div>
                   <input
                     id="lastName"
-                    name="lastName"
                     type="text"
                     required
                     value={lastName}
@@ -118,6 +113,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Adresse e-mail
@@ -128,9 +124,7 @@ export default function RegisterPage() {
                 </div>
                 <input
                   id="email"
-                  name="email"
                   type="email"
-                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -140,6 +134,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Mot de passe
@@ -150,9 +145,7 @@ export default function RegisterPage() {
                 </div>
                 <input
                   id="password"
-                  name="password"
                   type="password"
-                  autoComplete="new-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -165,6 +158,7 @@ export default function RegisterPage() {
               </p>
             </div>
 
+            {/* Confirm Password */}
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                 Confirmer le mot de passe
@@ -175,9 +169,7 @@ export default function RegisterPage() {
                 </div>
                 <input
                   id="confirmPassword"
-                  name="confirmPassword"
                   type="password"
-                  autoComplete="new-password"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -187,10 +179,10 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Terms */}
             <div className="flex items-center">
               <input
                 id="terms"
-                name="terms"
                 type="checkbox"
                 required
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
@@ -203,6 +195,7 @@ export default function RegisterPage() {
               </label>
             </div>
 
+            {/* Submit */}
             <div>
               <button
                 type="submit"

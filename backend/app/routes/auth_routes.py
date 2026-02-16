@@ -12,6 +12,8 @@ def register():
     data = request.json
     if User.query.filter_by(email=data['email']).first():
         return jsonify({"msg": "Email already exists"}), 400
+    if not data.get("email") or not data.get("password") or not data.get("name"):
+        return jsonify({"msg": "Name, email, and password are required"}), 400
 
     hashed = generate_password_hash(data["password"])
     user = User(
@@ -23,6 +25,8 @@ def register():
     db.session.add(user)
     db.session.commit()
     return jsonify({"msg": "User created"}), 201
+    
+
 
 # ---------------- Login ----------------
 @auth_bp.route("/login", methods=["POST"])
