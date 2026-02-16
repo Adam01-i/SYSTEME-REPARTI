@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Calendar, Users, Wifi, Coffee, Tv, Bath } from "lucide-react";
-import { useRoom } from "../../hooks/useRoom";
+import { useRoom } from "../../hooks/room/useRoom";
 
 export default function RoomDetailPage() {
   const { id } = useParams<{ id: string }>();

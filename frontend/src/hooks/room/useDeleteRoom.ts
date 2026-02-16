@@ -1,13 +1,12 @@
+// frontend/src/hooks/room/useDeleteRoom
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { roomService } from "../services/room.service";
-import { RoomPayload } from "../types/room";
+import { roomService } from "../../services/room.service";
 
-export const useCreateRoom = () => {
+export const useDeleteRoom = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: RoomPayload) =>
-      roomService.createRoom(payload),
+    mutationFn: (id: string) => roomService.deleteRoom(id),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["rooms"] });

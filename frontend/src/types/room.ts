@@ -1,3 +1,4 @@
+// frontend/src/types/room.ts
 export interface Room {
   id: string;
   name: string;

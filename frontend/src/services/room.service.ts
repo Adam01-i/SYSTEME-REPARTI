@@ -1,3 +1,4 @@
+// frontend/src/services/room.service.ts
 import { api } from "../lib/api";
 import {
   Room,

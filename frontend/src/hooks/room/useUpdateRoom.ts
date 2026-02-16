@@ -1,6 +1,7 @@
+// frontend/src/hooks/useUpdateRoom.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { roomService } from "../services/room.service";
-import { RoomPayload } from "../types/room";
+import { roomService } from "../../services/room.service";
+import { RoomPayload } from "../../types/room";
 
 export const useUpdateRoom = () => {
   const queryClient = useQueryClient();

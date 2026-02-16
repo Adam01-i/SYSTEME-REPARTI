@@ -1,6 +1,7 @@
+// frontend/src/hooks/room/useRoom.ts
 import { useQuery } from "@tanstack/react-query";
-import { roomService } from "../services/room.service";
-import { Room } from "../types/room";
+import { roomService } from "../../services/room.service";
+import { Room } from "../../types/room";
 
 export const useRoom = (id: string) => {
   return useQuery<Room>({
