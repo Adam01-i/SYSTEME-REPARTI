@@ -1,12 +1,35 @@
+// frontend/src/hooks/auth/useRegister.ts
 import { useMutation } from "@tanstack/react-query";
-import { authService } from "../../services/auth.service";
-import { RegisterPayload, User } from "../../types/auth";
+import axios from "axios";
+import { User } from "../../types/auth";
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface RegisterResponse {
+  data: {
+    access_token: string;
+    user: User; // doit contenir 'role'
+  };
+}
 
 export const useRegister = () => {
-  return useMutation({
-    mutationFn: (payload: RegisterPayload) => authService.register(payload),
-    onSuccess: (data: { data: { access_token: string; user: User } }) => {
-      localStorage.setItem("access_token", data.data.access_token);
+  const mutation = useMutation({
+    mutationFn: async (payload: RegisterPayload) => {
+      const response = await axios.post<RegisterResponse>(
+        `${import.meta.env.VITE_API_URL}/auth/register`,
+        payload
+      );
+      return response.data;
     },
   });
+
+  return {
+    register: mutation.mutateAsync,
+    isLoading: mutation.status === "pending", // ✅ Correct pour v5
+    error: mutation.error,
+  };
 };

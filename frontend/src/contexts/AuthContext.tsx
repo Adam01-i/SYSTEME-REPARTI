@@ -1,92 +1,60 @@
 // frontend/src/contexts/AuthContext.tsx
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { jwtDecode } from "jwt-decode";
-import { User, LoginPayload, RegisterPayload } from "../types/auth";
-import { authService } from "../services/auth.service";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { User } from "../types/auth";
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
-  login: (payload: LoginPayload) => Promise<void>;
-  register: (payload: RegisterPayload) => Promise<void>;
+  token: string | null;
+  login: (data: { user: User; token: string }) => void;
   logout: () => void;
+  isLoading: boolean; // ✅ on ajoute isLoading
 }
 
-interface JwtPayload {
-  sub: string; // user id
-  role: string;
-  iat: number;
-  exp: number;
-}
-
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isLoading: true,
-  login: async () => {},
-  register: async () => {},
-  logout: () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // loader initial
 
-  // ✅ Check si token dans localStorage au démarrage
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      try {
-        const decoded = jwtDecode<JwtPayload>(token);
-        setUser({
-          id: decoded.sub,
-          name: "", // on peut stocker le nom complet dans le localStorage si nécessaire
-          role: decoded.role,
-        });
-      } catch (err) {
-        console.error("JWT invalide", err);
-        localStorage.removeItem("access_token");
-      }
+    // 🔹 Exemple : récupérer user et token depuis localStorage au chargement
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
     }
-    setIsLoading(false);
+
+    setIsLoading(false); // on a fini de charger
   }, []);
 
-  const login = async (payload: LoginPayload) => {
-    setIsLoading(true);
-    try {
-      const res = await authService.login(payload);
-      const { access_token, user } = res.data;
-
-      localStorage.setItem("access_token", access_token);
-      setUser(user);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const register = async (payload: RegisterPayload) => {
-    setIsLoading(true);
-    try {
-      const res = await authService.register(payload);
-      const { access_token, user } = res.data;
-
-      localStorage.setItem("access_token", access_token);
-      setUser(user);
-    } finally {
-      setIsLoading(false);
-    }
+  const login = ({ user, token }: { user: User; token: string }) => {
+    setUser(user);
+    setToken(token);
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
   };
 
   const logout = () => {
-    localStorage.removeItem("access_token");
     setUser(null);
+    setToken(null);
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Hook pratique
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

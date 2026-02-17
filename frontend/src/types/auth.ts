@@ -12,7 +12,8 @@ export interface LoginPayload {
 }
 
 export interface User {
-  id: string;
+  id: number;
   name: string;
-  role: string;
+  email: string;
+  role: "admin" | "user"; // ou string si plus flexible
 }

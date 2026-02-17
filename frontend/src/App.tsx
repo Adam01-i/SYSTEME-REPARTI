@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// frontend/src/App.tsx
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
@@ -13,11 +14,23 @@ import RegisterPage from './pages/auth/RegisterPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminRooms from './pages/admin/AdminRooms';
 import AdminBookings from './pages/admin/AdminBookings';
-
-import { AuthProvider } from "./contexts/AuthContext";
-import { ProtectedRoute } from './components/ProtectedRoute';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const queryClient = new QueryClient();
+
+// ✅ Wrapper pour les routes protégées
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+};
+
+// ✅ Wrapper pour les routes admin uniquement
+const AdminRoute = ({ children }: { children: JSX.Element }) => {
+  const { user } = useAuth();
+  if (!user || user.role !== 'admin') return <Navigate to="/login" replace />;
+  return children;
+};
 
 function App() {
   return (
@@ -26,70 +39,62 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gray-50">
             <Navbar />
-
             <Routes>
-              {/* Pages publiques */}
+              {/* Routes publiques */}
               <Route path="/" element={<HomePage />} />
               <Route path="/rooms" element={<RoomListPage />} />
               <Route path="/rooms/:id" element={<RoomDetailPage />} />
+              <Route path="/booking/:roomId" element={<BookingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
 
-              {/* Pages utilisateur protégées */}
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute>
-                    <ProfilePage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/booking/:roomId" 
-                element={
-                  <ProtectedRoute>
-                    <BookingPage />
-                  </ProtectedRoute>
-                } 
-              />
-
-              {/* Pages admin protégées avec rôle */}
-              <Route 
-                path="/dashboard/*" 
+              {/* Routes protégées */}
+              <Route
+                path="/dashboard/*"
                 element={
                   <ProtectedRoute>
                     <DashboardPage />
                   </ProtectedRoute>
-                } 
+                }
               />
-
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/rooms" 
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminRooms />
-                  </ProtectedRoute>
-                } 
-              />
-
-              <Route 
-                path="/admin/bookings" 
+              <Route
+                path="/profile"
                 element={
                   <ProtectedRoute>
-                    <AdminBookings />
+                    <ProfilePage />
                   </ProtectedRoute>
-                } 
+                }
               />
-            </Routes>
 
+              {/* Routes admin */}
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/rooms"
+                element={
+                  <AdminRoute>
+                    <AdminRooms />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/bookings"
+                element={
+                  <AdminRoute>
+                    <AdminBookings />
+                  </AdminRoute>
+                }
+              />
+
+              {/* Redirection par défaut si route inconnue */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
             <Toaster position="top-right" />
           </div>
         </Router>
