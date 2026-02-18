@@ -3,17 +3,15 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { User } from "../../types/auth";
 
+export interface RegisterResponse {
+  access_token: string;
+  user: User;
+}
+
 export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
-}
-
-export interface RegisterResponse {
-  data: {
-    access_token: string;
-    user: User; // doit contenir 'role'
-  };
 }
 
 export const useRegister = () => {
@@ -23,13 +21,13 @@ export const useRegister = () => {
         `${import.meta.env.VITE_API_URL}/auth/register`,
         payload
       );
-      return response.data;
+      return response.data; // ✅ ici, data a déjà access_token et user
     },
   });
 
   return {
     register: mutation.mutateAsync,
-    isLoading: mutation.status === "pending", // ✅ Correct pour v5
+    isLoading: mutation.status === "pending",
     error: mutation.error,
   };
 };

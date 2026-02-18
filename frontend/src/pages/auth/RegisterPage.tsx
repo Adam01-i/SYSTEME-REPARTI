@@ -38,7 +38,7 @@ export default function RegisterPage() {
         password,
       });
 
-      const { access_token, user } = response.data;
+      const { access_token, user } = response;
 
       // Mise à jour du contexte Auth
       authLogin({ user, token: access_token });

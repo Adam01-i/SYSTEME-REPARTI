@@ -24,8 +24,15 @@ def register():
     )
     db.session.add(user)
     db.session.commit()
-    return jsonify({"msg": "User created"}), 201
-    
+    access_token = create_access_token(
+        identity=str(user.id),
+        additional_claims={"role": user.role}
+    )
+
+    return jsonify({
+        "access_token": access_token,
+        "user": {"id": user.id, "name": user.name, "role": user.role}
+    }), 201    
 
 
 # ---------------- Login ----------------
