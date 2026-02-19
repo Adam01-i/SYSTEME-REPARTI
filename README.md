@@ -1,7 +1,3 @@
-Parfait ! On peut rédiger un **README très complet** pour ton projet **Système Réparti**, qui servira de base et qu’on améliorera au fur et à mesure des phases. Voici une première version prête à être utilisée dans GitHub :
-
----
-
 # 🖥️ Système Réparti – Projet DevOps / Application Web Distribuée
 
 [![Licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
@@ -30,7 +26,6 @@ L’objectif est de créer un workflow **DevOps complet** : de la conception loc
 
 * Comprendre l’architecture microservices
 * Maîtriser Docker, Docker Compose et Kubernetes
-
 * Configurer un pipeline CI/CD avec Jenkins
 * Automatiser l’installation d’infrastructures avec Ansible
 * Développer des applications web robustes et sécurisées
@@ -40,6 +35,7 @@ L’objectif est de créer un workflow **DevOps complet** : de la conception loc
 ## 🏗️ Structure du projet
 
 ```
+
 systeme-reparti/
 │
 ├── frontend/          # Code React (Vite, Tailwind, JWT)
@@ -49,7 +45,8 @@ systeme-reparti/
 ├── jenkins/           # Jenkinsfile et scripts pipeline
 ├── docker-compose.yml # Lancement local multi-services
 └── README.md          # Documentation
-```
+
+````
 
 ---
 
@@ -60,8 +57,7 @@ Nous avons terminé :
 1. **Conception et architecture** (Phase 1)
 2. **Développement local** (Phase 2)
 3. **Dockerisation** (Phase 3)
-
-Et maintenant nous passons à : **Déploiement sur Minikube et cluster Kubernetes**.
+4. **Déploiement sur Minikube et cluster Kubernetes**
 
 ---
 
@@ -71,25 +67,37 @@ Et maintenant nous passons à : **Déploiement sur Minikube et cluster Kubernete
 
 * **Flask** + SQLAlchemy
 * JWT pour authentification
-* Modèles principaux : `User`
+* Modèles principaux : `User`, `Room`, `Booking`, `Review`
 * Routes principales :
 
-  * `POST /register` → Inscription
-  * `POST /login` → Connexion
-  * `GET /ping` → Test API
+  * `POST /api/auth/register` → Inscription
+  * `POST /api/auth/login` → Connexion
+  * `GET /api/ping` → Test API
 
 ### 🔹 Frontend
 
 * **React 20 / Vite**
 * Pages : Login, Register, Dashboard
-* Gestion JWT côté client avec Axios
+* Gestion JWT côté client avec Axios et interceptors
 * Animations avec Framer Motion
 
 ### 🔹 Base de données
 
 * **PostgreSQL 15**
-* Persistante avec Docker volume
+* Persistante avec **PersistentVolumeClaim** sur Kubernetes
 * Connexion sécurisée via variable `DATABASE_URL`
+* Commandes utiles PostgreSQL :
+
+```bash
+# Connexion à la DB
+psql postgresql://postgres:postgres@postgres:5432/systeme_reparti
+
+# Lister les tables
+\dt
+
+# Exécuter les migrations Flask
+flask db upgrade
+````
 
 ---
 
@@ -110,21 +118,39 @@ docker-compose up --build
 
 ## ☸️ Kubernetes (Phase 4)
 
-Manifests à prévoir :
+**Manifests inclus :**
 
 * `backend-deployment.yaml`
 * `frontend-deployment.yaml`
 * `postgres-deployment.yaml`
-* `services.yaml`
+* `backend-service.yaml`
+* `frontend-service.yaml`
+* `postgres-service.yaml`
 * `pvc.yaml`
 
-Commandes utiles pour tester Minikube :
+**Commandes utiles :**
 
 ```bash
+# Appliquer tous les manifests
 kubectl apply -f k8s/
+
+# Vérifier les pods
 kubectl get pods
+
+# Vérifier les services
 kubectl get svc
+
+# Redémarrer un déploiement
+kubectl rollout restart deployment backend
+
+# Connexion à un pod pour debug
+kubectl exec -it deployment/backend -- bash
 ```
+
+**NodePorts par défaut (Minikube) :**
+
+* Frontend → `http://192.168.49.2:30007`
+* Backend → `http://192.168.49.2:30001/api`
 
 ---
 
@@ -163,7 +189,7 @@ FLASK_ENV=development
 ### Frontend `.env`
 
 ```env
-VITE_API_URL=http://localhost:5001/api
+VITE_API_URL=http://192.168.49.2:30001/api
 ```
 
 ---
@@ -183,8 +209,8 @@ cd systeme-reparti
 docker-compose up --build
 ```
 
-3. Backend → `http://localhost:5001/api/ping`
-4. Frontend → `http://localhost:5173`
+3. Vérifier le backend : `http://localhost:5001/api/ping`
+4. Vérifier le frontend : `http://localhost:5173`
 
 ---
 
@@ -195,7 +221,7 @@ docker-compose up --build
 | 1     | Conception & architecture | ✅ Terminé |
 | 2     | Développement local       | ✅ Terminé |
 | 3     | Dockerisation             | ✅ Terminé |
-| 4     | Kubernetes                | En cours  |
+| 4     | Kubernetes                | ✅ Terminé |
 | 5     | Ansible                   | À faire   |
 | 6     | CI/CD Jenkins             | À faire   |
 
@@ -207,6 +233,7 @@ docker-compose up --build
 * Versionner les conteneurs et images Docker
 * Ne jamais commit les `.env` contenant les secrets
 * Tester chaque service individuellement avant orchestration
+* Toujours vérifier les logs avec `kubectl logs` et `docker logs` en cas de problème
 
 ---
 
@@ -223,5 +250,6 @@ docker-compose up --build
 
 MIT License – voir [LICENSE](LICENSE)
 
----
+```
 
+---
