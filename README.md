@@ -199,7 +199,7 @@ VITE_API_URL=http://192.168.49.2:30001/api
 1. Clone le projet :
 
 ```bash
-git clone <repo_url>
+git clone <[repo_url](https://github.com/Adam01-i/SYSTEME-REPARTI)>
 cd systeme-reparti
 ```
 

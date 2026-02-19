@@ -1,2 +1,5 @@
 backend/.env
 frontend/.env
+# Binaries
+kubectl
+minikube-linux-amd64
