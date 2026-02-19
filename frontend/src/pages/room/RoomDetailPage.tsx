@@ -15,7 +15,7 @@ interface Room {
 }
 
 async function fetchRoom(id: string): Promise<Room> {
-  const res = await fetch(`http://backend:5000/api/rooms/${id}`);
+  const res = await fetch(`http://192.168.49.2:30001/api/rooms/${id}`);
   if (!res.ok) throw new Error('Failed to fetch room');
   return res.json();
 }

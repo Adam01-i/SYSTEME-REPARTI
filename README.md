@@ -30,6 +30,7 @@ L’objectif est de créer un workflow **DevOps complet** : de la conception loc
 
 * Comprendre l’architecture microservices
 * Maîtriser Docker, Docker Compose et Kubernetes
+
 * Configurer un pipeline CI/CD avec Jenkins
 * Automatiser l’installation d’infrastructures avec Ansible
 * Développer des applications web robustes et sécurisées

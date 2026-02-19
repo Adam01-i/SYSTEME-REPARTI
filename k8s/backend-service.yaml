@@ -1,0 +1,14 @@
+# k8s/backend-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  type: NodePort
+  selector:
+    app: backend
+  ports:
+    - port: 5000        # port interne du service
+      targetPort: 5000  # port exposé par le pod
+      nodePort: 30001   # port du nœud pour le navigateur / frontend
