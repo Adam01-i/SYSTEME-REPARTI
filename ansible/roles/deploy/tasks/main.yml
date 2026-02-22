@@ -1,0 +1,4 @@
+# ansible/roles/deploy/tasks/main.yml
+- name: Apply Kubernetes manifests
+  ansible.builtin.command: kubectl apply -f /home/adam/Bureau/MES_PROJETS/systeme-reparti/k8s/
+  changed_when: false

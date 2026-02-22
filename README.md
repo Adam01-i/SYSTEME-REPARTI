@@ -154,13 +154,51 @@ kubectl exec -it deployment/backend -- bash
 
 ---
 
-## 🤖 Ansible (Phase 5)
+## 🤖 Ansible – Provisionnement Automatique (Phase 5 ✅)
 
-Playbooks pour automatiser :
+Le playbook `site.yml` permet :
 
-* Installation Docker et Kubernetes
-* Installation Jenkins
-* Déploiement automatique de l’application
+* Installation Docker
+* Installation kubectl
+* Installation Minikube
+* Lancement Jenkins en container Docker
+* Déploiement Kubernetes automatique
+
+Exécution :
+
+```bash
+cd ansible
+ansible-playbook -i inventory.ini site.yml --ask-become-pass
+```
+
+---
+
+# 🔧 Jenkins (Dockerisé)
+
+Jenkins est exécuté via Docker :
+
+```bash
+docker run -d -p 8080:8080 --name jenkins jenkins/jenkins:lts
+```
+
+Accès :
+
+```
+http://localhost:8080
+```
+
+Mot de passe initial :
+
+```bash
+docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+```
+
+Pourquoi Docker ?
+
+* Portable
+* Version contrôlée
+* Pas de problème GPG
+* Standard DevOps moderne
 
 ---
 

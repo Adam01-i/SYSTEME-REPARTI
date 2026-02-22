@@ -1,0 +1,10 @@
+# ansible/site.yml
+- name: Setup DevOps Environment
+  hosts: dev
+  become: true
+
+  roles:
+    - docker
+    - kubernetes
+    - jenkins
+    - deploy
