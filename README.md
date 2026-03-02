@@ -154,7 +154,7 @@ kubectl exec -it deployment/backend -- bash
 
 ---
 
-## 🤖 Ansible – Provisionnement Automatique (Phase 5 ✅)
+## 🤖 Ansible (Phase 5 ✅)
 
 Le playbook `site.yml` permet :
 
@@ -204,12 +204,169 @@ Pourquoi Docker ?
 
 ## 🔄 CI/CD avec Jenkins (Phase 6)
 
-Pipeline prévu :
+La Phase 6 met en place une **chaîne d’intégration et de déploiement continu (CI/CD)** automatisée avec **Jenkins**.
 
-1. Lint & tests
-2. Build images Docker
-3. Push sur Docker Hub
-4. Déploiement sur cluster via `kubectl apply -f k8s/`
+L’objectif est d’automatiser :
+
+* L’analyse du code
+* Les tests
+* La construction des images Docker
+* Le push vers **Docker Hub**
+* Le déploiement automatique sur le cluster **Kubernetes**
+
+---
+
+## 🏗️ Architecture du Pipeline
+
+```
+GitHub → Jenkins → Docker Build → Docker Hub → Kubernetes
+```
+
+À chaque `git push`, Jenkins :
+
+1. Clone le repository
+2. Exécute les tests et vérifications
+3. Construit les images Docker
+4. Push les images sur Docker Hub
+5. Déploie automatiquement sur le cluster Minikube
+
+---
+
+# ⚙️ Jenkins Dockerisé
+
+Jenkins est exécuté dans un conteneur Docker :
+
+```bash
+docker run -d \
+  -p 8080:8080 \
+  -v jenkins_home:/var/jenkins_home \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  --name jenkins \
+  jenkins/jenkins:lts
+```
+
+Accès :
+
+```
+http://localhost:8080
+```
+
+Le montage `/var/run/docker.sock` permet à Jenkins de lancer des builds Docker directement sur la machine hôte.
+
+---
+
+# 📄 Jenkinsfile (Pipeline Declarative)
+
+Le pipeline est défini dans un fichier `Jenkinsfile` à la racine du projet :
+
+---
+
+# 🔍 Détail des Étapes
+
+## 1️⃣ Lint & Tests
+
+Vérifie la qualité du code :
+
+* Backend → `pytest`
+* Frontend → `npm run lint`
+
+Objectif :
+
+* Détecter les erreurs avant build
+* Empêcher le déploiement si le code est cassé
+
+---
+
+## 2️⃣ Build des images Docker
+
+Construction automatique :
+
+```bash
+docker build -t systeme-reparti-backend backend/
+docker build -t systeme-reparti-frontend frontend/
+```
+
+Chaque push reconstruit une image propre.
+
+---
+
+## 3️⃣ Push vers Docker Hub
+
+Les images sont envoyées vers :
+
+```
+adam01tiret8/systeme-reparti-backend
+adam01tiret8/systeme-reparti-frontend
+```
+
+Cela permet :
+
+* Versionnement
+* Portabilité
+* Déploiement sur n’importe quel cluster
+
+---
+
+## 4️⃣ Déploiement Kubernetes Automatique
+
+Commande exécutée par Jenkins :
+
+```bash
+kubectl apply -f k8s/
+```
+
+Résultat :
+
+* Mise à jour des deployments
+* Rolling update automatique
+* Redémarrage des pods si nouvelle image
+
+Vérification :
+
+```bash
+kubectl get pods
+kubectl rollout status deployment/backend
+```
+
+---
+
+# 🔐 Sécurité
+
+* Les credentials Docker Hub sont stockés dans Jenkins (Credential Manager)
+* Les secrets ne sont jamais commit dans Git
+* Les variables sensibles sont injectées via variables d’environnement
+
+---
+
+# 🚀 Résultat Final
+
+Après un simple :
+
+```bash
+git push origin main
+```
+
+Le pipeline :
+
+✅ Teste le code
+✅ Construit les images
+✅ Les publie
+✅ Déploie automatiquement
+✅ Met à jour Kubernetes
+
+Sans intervention manuelle.
+
+---
+
+# 🎓 Impact pédagogique
+
+Cette phase démontre :
+
+* Maîtrise CI/CD
+* Automatisation complète DevOps
+* Intégration Docker + Kubernetes
+* Gestion sécurisée des credentials
+* Industrialisation du projet
 
 ---
 
@@ -260,8 +417,8 @@ docker-compose up --build
 | 2     | Développement local       | ✅ Terminé |
 | 3     | Dockerisation             | ✅ Terminé |
 | 4     | Kubernetes                | ✅ Terminé |
-| 5     | Ansible                   | À faire   |
-| 6     | CI/CD Jenkins             | À faire   |
+| 5     | Ansible                   | ✅ Terminé |
+| 6     | CI/CD Jenkins             | ✅ Terminé |
 
 ---
 
