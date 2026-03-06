@@ -1,4 +1,3 @@
-# ansible/roles/jenkins/tasks/main.yml
 - name: Install Java
   ansible.builtin.apt:
     name: openjdk-17-jdk
@@ -10,14 +9,20 @@
     path: /etc/apt/sources.list.d/jenkins.list
     state: absent
 
-- name: Add Jenkins official key (trusted method)
-  ansible.builtin.apt_key:
-    url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
-    state: present
+- name: Remove old Jenkins key
+  ansible.builtin.file:
+    path: /usr/share/keyrings/jenkins-keyring.asc
+    state: absent
+
+- name: Download Jenkins key
+  ansible.builtin.get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    dest: /usr/share/keyrings/jenkins-keyring.asc
+    mode: '0644'
 
 - name: Add Jenkins repository
   ansible.builtin.apt_repository:
-    repo: "deb https://pkg.jenkins.io/debian-stable binary/"
+    repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
     filename: jenkins
     state: present
 

@@ -6,7 +6,6 @@
 [![Jenkins](https://img.shields.io/badge/Jenkins-Pipeline-orange)]()
 
 ---
-
 ## 📌 Description
 
 **Système Réparti** est un projet pédagogique et professionnel visant à construire une **application web distribuée complète**, incluant :
@@ -50,7 +49,7 @@ systeme-reparti/
 
 ---
 
-## ⚡ Phase actuelle : PHASE 4 – Kubernetes
+## Phase actuelle : PHASE 4 – Kubernetes
 
 Nous avons terminé :
 

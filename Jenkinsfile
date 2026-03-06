@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker-hub-creds')
-        DOCKERHUB_USER = "adam01-i"
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+        DOCKERHUB_USER = "adam01tiret8"
         BACKEND_IMAGE = "${DOCKERHUB_USER}/systeme-reparti-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USER}/systeme-reparti-frontend"
     }
