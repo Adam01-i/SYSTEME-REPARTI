@@ -439,11 +439,3 @@ docker-compose up --build
 4. Merge via Pull Request
 
 ---
-
-## 📌 Licence
-
-MIT License – voir [LICENSE](LICENSE)
-
-```
-
----
